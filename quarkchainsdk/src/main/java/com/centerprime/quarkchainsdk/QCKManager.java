@@ -209,39 +209,6 @@ public class QCKManager {
                 });
     }
 
-    /**
-     * Get ERC20 Token Balance of Wallet
-     */
-    public Single<BigDecimal> getTokenBalance(String walletAddress, String password, String tokenContractAddress, Context context) {
-        return loadCredentials(walletAddress, password, context)
-                .flatMap(credentials -> {
-                    TransactionReceiptProcessor transactionReceiptProcessor = new NoOpProcessor(web3j);
-                    TransactionManager transactionManager = new RawTransactionManager(
-                            web3j, credentials, ChainId.MAINNET, transactionReceiptProcessor);
-                    Erc20TokenWrapper contract = Erc20TokenWrapper.load(tokenContractAddress, web3j,
-                            transactionManager, BigInteger.ZERO, BigInteger.ZERO);
-                    Address address = new Address(walletAddress);
-                    Uint256 tokenBalance = contract.balanceOf(address);
-
-                    HashMap<String, Object> body = new HashMap<>();
-                    body.put("action_type", "GET_TOKEN_BALANCE");
-                    body.put("message", "TEST");
-                    sendEventToLedger(body);
-
-                    return Single.just(BalanceUtils.weiToEth(tokenBalance.getValue()));
-                });
-    }
-
-    /**
-     * Get Nonce for Current Wallet Address
-     */
-    protected BigInteger getNonce(String walletAddress) throws IOException {
-        EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(
-                walletAddress, DefaultBlockParameterName.PENDING).send();
-
-        return ethGetTransactionCount.getTransactionCount();
-    }
-
     public String read_file(Context context, String filename) throws IOException {
         FileInputStream fis = context.openFileInput(filename);
         InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
