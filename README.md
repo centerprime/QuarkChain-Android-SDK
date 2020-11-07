@@ -130,14 +130,14 @@ qckManager.importFromPrivateKey(privateKey, this)
 
 ```java
 QCKManager qckManager = QCKManager.getInstance();
-qckManager.init("https://data-seed-prebsc-1-s1.binance.org:8545");
+qckManager.init("http://jrpc.mainnet.quarkchain.io:38391");
 String walletAddress = "WALLET_ADDRESS";
-qckManager.getBNBBalance(walletAddress)
+qckManager.getQCKBalance(walletAddress)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(balance -> {
 
-                    Toast.makeText(this, "Eth Balance : " + balance, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "QCK Balance : " + balance, Toast.LENGTH_SHORT).show();
 
                 }, error -> {
 
@@ -149,14 +149,15 @@ qckManager.getBNBBalance(walletAddress)
 
 ```java
 QCKManager qckManager = QCKManager.getInstance();
-qckManager.init("https://data-seed-prebsc-1-s1.binance.org:8545");
+qckManager.init("http://jrpc.mainnet.quarkchain.io:38391");
 String walletAddress = "WALLET_ADDRESS";
 String password = "WALLET_PASSWORD";
 BigInteger gasPrice = new BigInteger("GAS_PRICE");
 BigInteger gasLimit = new BigInteger("GAS_LIMIT");
-BigDecimal bnbAmount = new BigDecimal("BNB_AMOUNT");
+BigDecimal qckAmount = new BigDecimal("QCK_AMOUNT");
+String fromAddress = "SENDER_WALLET_ADDRESS";
 String receiverAddress = "RECEIVER_WALLET_ADDRESS";
-qckManager.sendQCKToken(walletAddress, password,gasPrice,gasLimit,bnbAmount, receiverAddress, this)
+qckManager.sendQCKToken(walletAddress, password, fromAddress, receiverAddress,gasPrice, gasLimit, qckAmount, this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tx -> {
