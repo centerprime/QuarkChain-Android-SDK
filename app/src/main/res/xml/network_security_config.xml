@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">34.231.96.72</domain>
+        <domain includeSubdomains="true">jrpc.mainnet.quarkchain.io</domain>
+    </domain-config>
+</network-security-config>

@@ -1,0 +1,3 @@
+include ':quarkchainsdk'
+include ':app'
+rootProject.name = "Quark Chain Client Sdk"
