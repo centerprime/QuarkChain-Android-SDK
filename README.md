@@ -22,8 +22,8 @@ Maven:
 ```xml
 <dependency>
 	    <groupId>com.github.centerprime</groupId>
-	    <artifactId>Binance-Chain-Client-SDK</artifactId>
-	    <version>1.0.1</version>
+	    <artifactId>Quark-Chain-Client-SDK</artifactId>
+	    <version>1.0.3</version>
 </dependency>
 ```
 
@@ -31,7 +31,8 @@ Gradle:
 
 ```groovy
 dependencies {
-    implementation 'com.github.centerprime:Binance-Chain-Client-SDK:1.0.1'
+     implementation 'com.github.centerprime:Quark-Chain-Client-SDK:1.0.3'
+
 }
 ```
 
