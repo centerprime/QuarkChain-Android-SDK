@@ -11,36 +11,18 @@ import com.centerprime.quarkchainsdk.quarck.QWWalletUtils;
 import com.centerprime.quarkchainsdk.quarck.Sign;
 import com.centerprime.quarkchainsdk.quarck.response.QKCGetAccountData;
 import com.centerprime.quarkchainsdk.quarck.response.QKCSendRawTransaction;
-import com.centerprime.quarkchainsdk.util.BalanceUtils;
 import com.centerprime.quarkchainsdk.util.CenterPrimeUtils;
-import com.centerprime.quarkchainsdk.util.Const;
-import com.centerprime.quarkchainsdk.util.Erc20TokenWrapper;
 import com.centerprime.quarkchainsdk.util.HyperLedgerApi;
 import com.centerprime.quarkchainsdk.util.SubmitTransactionModel;
 import com.centerprime.quarkchainsdk.util.Wallet;
 
 import org.spongycastle.util.encoders.Hex;
-import org.web3j.abi.datatypes.Address;
-import org.web3j.abi.datatypes.generated.Uint256;
 import org.web3j.crypto.CipherException;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
-import org.web3j.crypto.RawTransaction;
-import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.Web3jFactory;
-import org.web3j.protocol.core.DefaultBlockParameterName;
-import org.web3j.protocol.core.methods.response.EthGasPrice;
-import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
-import org.web3j.protocol.core.methods.response.EthSendTransaction;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
-import org.web3j.tx.ChainId;
-import org.web3j.tx.RawTransactionManager;
-import org.web3j.tx.TransactionManager;
-import org.web3j.tx.response.NoOpProcessor;
-import org.web3j.tx.response.TransactionReceiptProcessor;
-import org.web3j.utils.Convert;
 import org.web3j.utils.Numeric;
 
 import java.io.BufferedReader;
@@ -48,7 +30,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
@@ -65,8 +46,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 /**
  * Created by CenterPrime on 2020/09/19.
  */
-public class QCKManager {
-    private static final QCKManager ourInstance = new QCKManager();
+public class QKCManager {
+    private static final QKCManager ourInstance = new QKCManager();
 
 
     /**
@@ -82,11 +63,11 @@ public class QCKManager {
      */
     private String QKC_PUBLIC_PATH_MAIN = "";
 
-    public static QCKManager getInstance() {
+    public static QKCManager getInstance() {
         return ourInstance;
     }
 
-    public QCKManager() {
+    public QKCManager() {
     }
 
     /**
@@ -132,16 +113,19 @@ public class QCKManager {
      */
     public Single<String> getKeyStore(String walletAddress, Context context) {
         return Single.fromCallable(() -> {
-            String walletPath = context.getFilesDir() + "/" + walletAddress.toLowerCase();
+            String wallet = walletAddress;
+            if (wallet.startsWith("0x")) {
+                wallet = wallet.substring(2);
+            }
+            String walletPath = context.getFilesDir() + "/" + wallet.toLowerCase();
             File keystoreFile = new File(walletPath);
             if (keystoreFile.exists()) {
                 return read_file(context, keystoreFile.getName());
             } else {
-                return null;
+                throw new Exception("Keystore is NULL");
             }
         });
     }
-
     /**
      * Import Wallet by Keystore
      */

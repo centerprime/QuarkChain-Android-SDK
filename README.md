@@ -48,9 +48,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        QCKManager qckManager = QCKManager.getInstance();
+        QCKManager QKCManager = QCKManager.getInstance();
 
-        qckManager.createWallet("12345", this)
+        QKCManager.createWallet("12345", this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(wallet -> {
@@ -71,9 +71,9 @@ public class MainActivity extends AppCompatActivity {
 
 > You can create Quark-Chain Wallet.
 ```java
-QCKManager qckManager = QCKManager.getInstance();
+QCKManager QKCManager = QCKManager.getInstance();
 
-qckManager.createWallet("12345", this)
+QKCManager.createWallet("12345", this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(wallet -> {
@@ -90,10 +90,10 @@ qckManager.createWallet("12345", this)
 > Import Quark-Chain Wallet by Keystore.
 
 ```java
-QCKManager qckManager = QCKManager.getInstance();
+QCKManager QKCManager = QCKManager.getInstance();
 String password = "xxxx12345";
 String keystore = "JSON_FORMAT";
-qckManager.importFromKeystore(keystore, password, this)
+QKCManager.importFromKeystore(keystore, password, this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(walletAddress -> {
@@ -109,9 +109,9 @@ qckManager.importFromKeystore(keystore, password, this)
 > Import Wallet By Private Key.
 
 ```java
-QCKManager qckManager = QCKManager.getInstance();
+QCKManager QKCManager = QCKManager.getInstance();
 String privateKey = "PRIVATE_KEY";
-qckManager.importFromPrivateKey(privateKey, this)
+QKCManager.importFromPrivateKey(privateKey, this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(walletAddress -> {
@@ -129,10 +129,10 @@ qckManager.importFromPrivateKey(privateKey, this)
 > QCK Balance.
 
 ```java
-QCKManager qckManager = QCKManager.getInstance();
-qckManager.init("http://jrpc.mainnet.quarkchain.io:38391");
+QCKManager QKCManager = QCKManager.getInstance();
+QKCManager.init("http://jrpc.mainnet.quarkchain.io:38391");
 String walletAddress = "WALLET_ADDRESS";
-qckManager.getQCKBalance(walletAddress)
+QKCManager.getQCKBalance(walletAddress)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(balance -> {
@@ -148,8 +148,8 @@ qckManager.getQCKBalance(walletAddress)
 > Send QCK.
 
 ```java
-QCKManager qckManager = QCKManager.getInstance();
-qckManager.init("http://jrpc.mainnet.quarkchain.io:38391");
+QCKManager QKCManager = QCKManager.getInstance();
+QKCManager.init("http://jrpc.mainnet.quarkchain.io:38391");
 String walletAddress = "WALLET_ADDRESS";
 String password = "WALLET_PASSWORD";
 BigInteger gasPrice = new BigInteger("GAS_PRICE");
@@ -157,7 +157,7 @@ BigInteger gasLimit = new BigInteger("GAS_LIMIT");
 BigDecimal qckAmount = new BigDecimal("QCK_AMOUNT");
 String fromAddress = "SENDER_WALLET_ADDRESS";
 String receiverAddress = "RECEIVER_WALLET_ADDRESS";
-qckManager.sendQCKToken(walletAddress, password, fromAddress, receiverAddress,gasPrice, gasLimit, qckAmount, this)
+QKCManager.sendQCKToken(walletAddress, password, fromAddress, receiverAddress,gasPrice, gasLimit, qckAmount, this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(tx -> {
