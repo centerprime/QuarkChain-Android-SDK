@@ -91,19 +91,24 @@ public class QKCManager {
      */
     public Single<Wallet> createWallet(String password, Context context) {
         return Single.fromCallable(() -> {
+            HashMap<String, Object> body = new HashMap<>();
             try {
-                HashMap<String, Object> body = new HashMap<>();
-                body.put("action_type", "WALLET_CREATE");
-                body.put("message", "Test");
-                sendEventToLedger(body);
+
                 String walletAddress = CenterPrimeUtils.generateNewWalletFile(password, new File(context.getFilesDir(), ""), false);
                 String walletPath = context.getFilesDir() + "/" + walletAddress.toLowerCase();
                 File keystoreFile = new File(walletPath);
                 String keystore = read_file(context, keystoreFile.getName());
+
+                body.put("action_type", "WALLET_CREATE");
+                body.put("wallet_address", walletAddress);
+                body.put("status", "SUCCESS");
+                sendEventToLedger(body);
                 return new Wallet(walletAddress, keystore);
             } catch (CipherException | IOException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | NoSuchProviderException e) {
                 e.printStackTrace();
+                body.put("status", "FAILURE");
             }
+            sendEventToLedger(body);
             return null;
         });
     }
@@ -131,19 +136,21 @@ public class QKCManager {
      */
     public Single<String> importFromKeystore(String keystore, String password, Context context) {
         return Single.fromCallable(() -> {
+            HashMap<String, Object> body = new HashMap<>();
             try {
                 Credentials credentials = CenterPrimeUtils.loadCredentials(password, keystore);
                 String walletAddress = CenterPrimeUtils.generateWalletFile(password, credentials.getEcKeyPair(), new File(context.getFilesDir(), ""), false);
 
-                HashMap<String, Object> body = new HashMap<>();
                 body.put("action_type", "WALLET_IMPORT_KEYSTORE");
-                body.put("message", "TEST");
+                body.put("wallet_address", walletAddress);
+                body.put("status", "SUCCESS");
                 sendEventToLedger(body);
-
                 return walletAddress;
             } catch (IOException e) {
+                body.put("status", "FAILURE");
                 e.printStackTrace();
             }
+            sendEventToLedger(body);
             return null;
         });
     }
@@ -153,6 +160,7 @@ public class QKCManager {
      */
     public Single<String> importFromPrivateKey(String privateKey, Context context) {
         return Single.fromCallable(() -> {
+            HashMap<String, Object> body = new HashMap<>();
             String password = "";
             // Decode private key
             ECKeyPair keys = ECKeyPair.create(Hex.decode(privateKey));
@@ -160,15 +168,17 @@ public class QKCManager {
                 Credentials credentials = Credentials.create(keys);
                 String walletAddress = CenterPrimeUtils.generateWalletFile(password, credentials.getEcKeyPair(), new File(context.getFilesDir(), ""), false);
 
-                HashMap<String, Object> body = new HashMap<>();
                 body.put("action_type", "WALLET_IMPORT_PRIVATE_KEY");
-                body.put("message", "TEST");
+                body.put("wallet_address", walletAddress);
+                body.put("status", "SUCCESS");
                 sendEventToLedger(body);
 
                 return walletAddress;
             } catch (CipherException | IOException e) {
                 e.printStackTrace();
+                body.put("status", "FAILURE");
             }
+            sendEventToLedger(body);
             return null;
         });
     }
@@ -214,11 +224,26 @@ public class QKCManager {
     }
 
     public Single<QKCGetAccountData.AccountData> getQCKBalance(String address) {
-        return Single.fromCallable(() -> com.centerprime.quarkchainsdk.quarck.Web3jFactory
-                .build(new com.centerprime.quarkchainsdk.quarck.HttpService(QKC_PUBLIC_PATH_MAIN, false))
-                .getAccountData(address)
-                .send()
-                .getQKCGetAccountData())
+        return Single.fromCallable(() -> {
+                    QKCGetAccountData.AccountData accountData = com.centerprime.quarkchainsdk.quarck.Web3jFactory
+                            .build(new com.centerprime.quarkchainsdk.quarck.HttpService(QKC_PUBLIC_PATH_MAIN, false))
+                            .getAccountData(address)
+                            .send()
+                            .getQKCGetAccountData();
+
+                    if (accountData != null && accountData.getPrimary() != null) {
+                        HashMap<String, Object> body = new HashMap<>();
+                        body.put("action_type", "TOKEN_BALANCE");
+                        body.put("wallet_address", address);
+                        body.put("balance", accountData.getPrimary().getBalances().get(0).getBalance());
+                        body.put("chainId", accountData.getPrimary().getChainId());
+                        body.put("shardId", accountData.getPrimary().getShardId());
+                        sendEventToLedger(body);
+                    }
+
+                    return accountData;
+                }
+        )
                 .subscribeOn(Schedulers.io());
     }
 
@@ -317,10 +342,25 @@ public class QKCManager {
                             .send();
                     if (raw.hasError()) {
                         System.out.println("ERROR : " + raw.getError().toString());
-                    }
-                    String resultHash = raw.getTransactionHash();
+                        return Single.just(null);
+                    } else {
 
-                    return Single.just(resultHash);
+                        String resultHash = raw.getTransactionHash();
+                        HashMap<String, Object> body = new HashMap<>();
+                        body.put("action_type", "SEND_TOKEN");
+                        body.put("from_wallet_address", walletAddress);
+                        body.put("to_wallet_address", toQWAddress);
+                        body.put("amount", amount.toString());
+                        body.put("tx_hash", resultHash);
+                        body.put("gasLimit", gasLimit.toString());
+                        body.put("gasPrice", gasPrice.toString());
+                        body.put("fee", gasLimit.multiply(gasPrice).toString());
+                        body.put("token_smart_contract", mToken.getAddress());
+                        body.put("status", "SUCCESS");
+                        sendEventToLedger(body);
+
+                        return Single.just(resultHash);
+                    }
                 });
     }
 

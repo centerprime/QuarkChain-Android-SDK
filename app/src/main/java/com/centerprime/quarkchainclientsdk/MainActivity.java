@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         QKCManager QKCManager = new QKCManager();
-        QKCManager.init("https://mainnet.infura.io/v3/eb4c55b5263f4ab8b2c8c8934f422930");
+        QKCManager.init("http://jrpc.mainnet.quarkchain.io:38391");
         QKCManager.createWallet("12345",this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
                     System.out.println(qckWalletAddress);
 
-                    String shard1 = QKCManager.getQCKAddressByChainIdAndShardId(qckWalletAddress,1,0,this);
+                    String shard1 = QKCManager.getQCKAddressByChainIdAndShardId(qckWalletAddress,2,0,this);
 
                     QKCManager.getQCKBalance(shard1)
                             .subscribeOn(Schedulers.io())
