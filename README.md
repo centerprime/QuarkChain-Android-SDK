@@ -57,6 +57,14 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(wallet -> {
                     String walletAddress = wallet.getAddress();
                     String keystore = wallet.getKeystore();
+		    
+		    String qckWalletAddress = QKCManager.
+                            getQCKAddress(walletAddress,this);
+		    int chainId = 1;
+		    int shardId = 0;
+ 	 	    String chainId1 = QKCManager.getQCKAddressByChainIdAndShardId(qckWalletAddress, chainId , shardId, this);
+		    
+		    
                 }, error -> {
                     System.out.println(error);
                 });
@@ -80,6 +88,15 @@ qkcManager.createWallet("12345", this)
                 .subscribe(wallet -> {
                     String walletAddress = wallet.getAddress();
                     String keystore = wallet.getKeystore();
+		   
+		    String qckWalletAddress = QKCManager.
+                            getQCKAddress(walletAddress,this);
+		    int chainId = 1;
+		    int shardId = 0;
+ 	 	    String chainId1 = QKCManager.getQCKAddressByChainIdAndShardId(qckWalletAddress, chainId , shardId, this);
+
+		    
+		    
                 }, error -> {
                     System.out.println(error);
                 });
