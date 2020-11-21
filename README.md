@@ -31,7 +31,7 @@ Gradle:
 
 ```groovy
 dependencies {
-     implementation 'com.github.centerprime:Quark-Chain-Client-SDK:1.0.3'
+     implementation 'com.github.centerprime:Quark-Chain-Client-SDK:1.0.5'
 
 }
 ```
