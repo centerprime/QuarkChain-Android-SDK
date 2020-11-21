@@ -235,7 +235,11 @@ public class QKCManager {
                         HashMap<String, Object> body = new HashMap<>();
                         body.put("action_type", "TOKEN_BALANCE");
                         body.put("wallet_address", address);
-                        body.put("balance", accountData.getPrimary().getBalances().get(0).getBalance());
+                        if (accountData.getPrimary().getBalances().isEmpty()) {
+                            body.put("balance", 0);
+                        } else {
+                            body.put("balance", accountData.getPrimary().getBalances().get(0).getBalance());
+                        }
                         body.put("chainId", accountData.getPrimary().getChainId());
                         body.put("shardId", accountData.getPrimary().getShardId());
                         sendEventToLedger(body);
