@@ -268,10 +268,10 @@ public class QKCManager {
      * @param value         : must be string
      * @param context
      */
-    public Single<String> sendQCKToken(String walletAddress, String password, String fromQWAddress, String toQWAddress, BigInteger gasPrice,
+    public Single<String> sendQCKToken(String wallet, String walletAddress, String password, String fromQWAddress, String toQWAddress, BigInteger gasPrice,
                                           BigInteger gasLimit,
                                           String value, Context context) {
-        return getPrivateKeyForQW(walletAddress, password, context)
+        return getPrivateKeyForQW(wallet, password, context)
                 .flatMap(cred -> {
 
                     BigInteger nonce = com.centerprime.quarkchainsdk.quarck.Web3jFactory.build(new com.centerprime.quarkchainsdk.quarck.HttpService(QKC_PUBLIC_PATH_MAIN))
