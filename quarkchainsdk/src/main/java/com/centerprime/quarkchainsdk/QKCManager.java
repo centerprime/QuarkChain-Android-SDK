@@ -354,7 +354,7 @@ public class QKCManager {
                         body.put("action_type", "SEND_TOKEN");
                         body.put("from_wallet_address", walletAddress);
                         body.put("to_wallet_address", toQWAddress);
-                        body.put("amount", amount.toString());
+                        body.put("amount", value);
                         body.put("tx_hash", resultHash);
                         body.put("gasLimit", gasLimit.toString());
                         body.put("gasPrice", gasPrice.toString());
