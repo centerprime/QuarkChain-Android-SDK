@@ -15,6 +15,16 @@
 
 ## Getting Started
 
+### Add jitpack to your root gradle file at the end of repositories:
+```xml
+allprojects {
+    repositories {
+	...
+        maven { url 'https://jitpack.io'}
+    }
+}
+```
+
 ### Adding Quark-Chain Client SDK as a Maven Dependency
 
 Maven:
