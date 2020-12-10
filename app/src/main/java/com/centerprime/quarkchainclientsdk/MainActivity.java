@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(wallet -> {
                     System.out.println(wallet);
                     String walletAddress = wallet.getAddress();
+                    walletAddress = "0x" + "13d123340fe2a947092be0d898287f9e81fd3e2b";
                     String qckWalletAddress = QKCManager.
                             getQCKAddress(walletAddress,this);
 

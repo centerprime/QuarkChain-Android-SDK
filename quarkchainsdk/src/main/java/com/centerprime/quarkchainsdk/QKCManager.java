@@ -1,6 +1,8 @@
 package com.centerprime.quarkchainsdk;
 
 import android.content.Context;
+import android.os.Build;
+import android.provider.Settings;
 import android.util.Pair;
 
 import com.centerprime.quarkchainsdk.quarck.Constant;
@@ -15,6 +17,7 @@ import com.centerprime.quarkchainsdk.util.CenterPrimeUtils;
 import com.centerprime.quarkchainsdk.util.HyperLedgerApi;
 import com.centerprime.quarkchainsdk.util.SubmitTransactionModel;
 import com.centerprime.quarkchainsdk.util.Wallet;
+import com.google.gson.Gson;
 
 import org.spongycastle.util.encoders.Hex;
 import org.web3j.crypto.CipherException;
@@ -102,13 +105,13 @@ public class QKCManager {
                 body.put("action_type", "WALLET_CREATE");
                 body.put("wallet_address", walletAddress);
                 body.put("status", "SUCCESS");
-                sendEventToLedger(body);
+                sendEventToLedger(body,context);
                 return new Wallet(walletAddress, keystore);
             } catch (CipherException | IOException | NoSuchAlgorithmException | InvalidAlgorithmParameterException | NoSuchProviderException e) {
                 e.printStackTrace();
                 body.put("status", "FAILURE");
             }
-            sendEventToLedger(body);
+            sendEventToLedger(body,context);
             return null;
         });
     }
@@ -144,13 +147,13 @@ public class QKCManager {
                 body.put("action_type", "WALLET_IMPORT_KEYSTORE");
                 body.put("wallet_address", walletAddress);
                 body.put("status", "SUCCESS");
-                sendEventToLedger(body);
+                sendEventToLedger(body,context);
                 return walletAddress;
             } catch (IOException e) {
                 body.put("status", "FAILURE");
                 e.printStackTrace();
             }
-            sendEventToLedger(body);
+            sendEventToLedger(body,context);
             return null;
         });
     }
@@ -171,14 +174,14 @@ public class QKCManager {
                 body.put("action_type", "WALLET_IMPORT_PRIVATE_KEY");
                 body.put("wallet_address", walletAddress);
                 body.put("status", "SUCCESS");
-                sendEventToLedger(body);
+                sendEventToLedger(body,context);
 
                 return walletAddress;
             } catch (CipherException | IOException e) {
                 e.printStackTrace();
                 body.put("status", "FAILURE");
             }
-            sendEventToLedger(body);
+            sendEventToLedger(body,context);
             return null;
         });
     }
@@ -223,7 +226,7 @@ public class QKCManager {
         return com.centerprime.quarkchainsdk.quarck.Numeric.selectChainAndShardAddress(address, chainId, shardId, context);
     }
 
-    public Single<QKCGetAccountData.AccountData> getQCKBalance(String address) {
+    public Single<QKCGetAccountData.AccountData> getQCKBalance(String address, Context context) {
         return Single.fromCallable(() -> {
                     QKCGetAccountData.AccountData accountData = com.centerprime.quarkchainsdk.quarck.Web3jFactory
                             .build(new com.centerprime.quarkchainsdk.quarck.HttpService(QKC_PUBLIC_PATH_MAIN, false))
@@ -242,7 +245,7 @@ public class QKCManager {
                         }
                         body.put("chainId", accountData.getPrimary().getChainId());
                         body.put("shardId", accountData.getPrimary().getShardId());
-                        sendEventToLedger(body);
+                        sendEventToLedger(body,context);
                     }
 
                     return accountData;
@@ -361,19 +364,26 @@ public class QKCManager {
                         body.put("fee", gasLimit.multiply(gasPrice).toString());
                         body.put("token_smart_contract", mToken.getAddress());
                         body.put("status", "SUCCESS");
-                        sendEventToLedger(body);
+                        sendEventToLedger(body,context);
 
                         return Single.just(resultHash);
                     }
                 });
     }
 
-    private void sendEventToLedger(HashMap<String, Object> map) {
+    private void sendEventToLedger(HashMap<String, Object> map, Context context) {
         try {
             SubmitTransactionModel submitTransactionModel = new SubmitTransactionModel();
             submitTransactionModel.setTx_type("QUARKCHAIN");
             submitTransactionModel.setUsername("user1");
             submitTransactionModel.setOrgname("org1");
+
+            HashMap<String, Object> deviceInfo = deviceInfo(context);
+            if (deviceInfo != null) {
+                map.put("DEVICE_INFO", new Gson().toJson(deviceInfo));
+            }
+
+
             submitTransactionModel.setBody(map);
             hyperLedgerApi.submitTransaction(submitTransactionModel)
                     .subscribeOn(Schedulers.io())
@@ -382,8 +392,30 @@ public class QKCManager {
                         System.out.println(objectBaseResponse);
                     });
         } catch (Exception e) {
-            e.printStackTrace();
+                e.printStackTrace();
         }
 
+    }
+
+
+    private HashMap<String, Object> deviceInfo(Context context) {
+        try {
+            String androidId = Settings.Secure.getString(context.getContentResolver(),
+                    Settings.Secure.ANDROID_ID);
+            String osName = "ANDROID";
+            String serialNumber = Build.SERIAL;
+            String model = Build.MODEL;
+            String manufacturer = Build.MANUFACTURER;
+            HashMap<String, Object> deviceInfo = new HashMap<>();
+            deviceInfo.put("ID", androidId);
+            deviceInfo.put("OS", osName);
+            deviceInfo.put("MODEL", model);
+            deviceInfo.put("SERIAL", serialNumber);
+            deviceInfo.put("MANUFACTURER", manufacturer);
+            return deviceInfo;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }
