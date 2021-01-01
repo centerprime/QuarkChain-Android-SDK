@@ -1,4 +1,4 @@
-# Quark-Chain-Client-SDK
+# QuarkChain Android SDK
 
 
 ## Table of Contents
