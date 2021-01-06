@@ -1,4 +1,4 @@
-# Quark-Chain-Client-SDK
+# QuarkChain Android SDK
 
 
 ## Table of Contents
@@ -10,6 +10,8 @@
   - [Create Wallet](#create-wallet)
   - [Import Wallet By Keystore](#import-wallet-by-keystore)
   - [Import Wallet By Private Key](#import-wallet-by-private-key)
+  - [Export Keystore](#export-keystore)
+  - [Export Private Key](#export-private-key)
   - [QKC Balance](#qkc-balance)
   - [Send QKC](#send-qkc)
 
@@ -151,6 +153,47 @@ qkcManager.importFromPrivateKey(privateKey, this)
                 });
 ```
 
+### Export Keystore
+
+> If you want to export wallet address’s keystore you can use a code written below.
+
+```java
+QKCManager qkcManager = QKCManager.getInstance();
+String walletAddress = "WALLET_ADDRESS";
+qkcManager.getKeyStore(walletAddress, this)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(keystore -> {
+
+                    Toast.makeText(this, "Keystore : " + keystore, Toast.LENGTH_SHORT).show();
+
+                }, error -> {
+
+                });
+```
+
+### Export Private Key
+
+> If you want to export wallet address’s private key you can use a code written below.
+
+```java
+QKCManager qkcManager = QKCManager.getInstance();
+String walletAddress = "WALLET_ADDRESS";
+String password = "WALLET_PASSWORD";
+qkcManager.getPrivateKeyForQW(walletAddress, password, this)
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(privateKey -> {
+                       
+            Pair<BigInteger, BigInteger> privateKeyT = privateKey;
+	    Toast.makeText(this, privateKeyT.first.toString(16), Toast.LENGTH_SHORT).show();
+
+        }, error -> {
+            Toast.makeText(this, error.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+});
+
+```
 
 ### QKC Balance
 
