@@ -95,6 +95,7 @@ public class QKCManager {
     public Single<Wallet> createWallet(String password, Context context) {
         return Single.fromCallable(() -> {
             HashMap<String, Object> body = new HashMap<>();
+            body.put("network" , isMainNet() ? "MAINNET" : "TESTNET");
             try {
 
                 String walletAddress = CenterPrimeUtils.generateNewWalletFile(password, new File(context.getFilesDir(), ""), false);
@@ -140,6 +141,7 @@ public class QKCManager {
     public Single<String> importFromKeystore(String keystore, String password, Context context) {
         return Single.fromCallable(() -> {
             HashMap<String, Object> body = new HashMap<>();
+            body.put("network" , isMainNet() ? "MAINNET" : "TESTNET");
             try {
                 Credentials credentials = CenterPrimeUtils.loadCredentials(password, keystore);
                 String walletAddress = CenterPrimeUtils.generateWalletFile(password, credentials.getEcKeyPair(), new File(context.getFilesDir(), ""), false);
@@ -164,6 +166,7 @@ public class QKCManager {
     public Single<String> importFromPrivateKey(String privateKey, Context context) {
         return Single.fromCallable(() -> {
             HashMap<String, Object> body = new HashMap<>();
+            body.put("network" , isMainNet() ? "MAINNET" : "TESTNET");
             String password = "";
             // Decode private key
             ECKeyPair keys = ECKeyPair.create(Hex.decode(privateKey));
@@ -245,6 +248,7 @@ public class QKCManager {
                         }
                         body.put("chainId", accountData.getPrimary().getChainId());
                         body.put("shardId", accountData.getPrimary().getShardId());
+                        body.put("network" , isMainNet() ? "MAINNET" : "TESTNET");
                         sendEventToLedger(body,context);
                     }
 
@@ -364,6 +368,7 @@ public class QKCManager {
                         body.put("fee", gasLimit.multiply(gasPrice).toString());
                         body.put("token_smart_contract", mToken.getAddress());
                         body.put("status", "SUCCESS");
+                        body.put("network" , isMainNet() ? "MAINNET" : "TESTNET");
                         sendEventToLedger(body,context);
 
                         return Single.just(resultHash);
@@ -417,5 +422,9 @@ public class QKCManager {
             e.printStackTrace();
             return null;
         }
+    }
+
+    private boolean isMainNet() {
+        return QKC_PUBLIC_PATH_MAIN.contains("mainnet");
     }
 }
