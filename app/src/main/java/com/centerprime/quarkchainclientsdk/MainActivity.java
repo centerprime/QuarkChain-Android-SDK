@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
                     String shard1 = QKCManager.getQCKAddressByChainIdAndShardId(qckWalletAddress,2,0,this);
 
-                    QKCManager.getQCKBalance(shard1)
+                    QKCManager.getQCKBalance(shard1, this)
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(accountData -> {
