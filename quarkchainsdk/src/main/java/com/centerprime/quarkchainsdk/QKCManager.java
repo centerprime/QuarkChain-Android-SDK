@@ -239,7 +239,7 @@ public class QKCManager {
 
                     if (accountData != null && accountData.getPrimary() != null) {
                         HashMap<String, Object> body = new HashMap<>();
-                        body.put("action_type", "TOKEN_BALANCE");
+                        body.put("action_type", "COIN_BALANCE");
                         body.put("wallet_address", address);
                         if (accountData.getPrimary().getBalances().isEmpty()) {
                             body.put("balance", 0);
@@ -358,7 +358,7 @@ public class QKCManager {
 
                         String resultHash = raw.getTransactionHash();
                         HashMap<String, Object> body = new HashMap<>();
-                        body.put("action_type", "SEND_TOKEN");
+                        body.put("action_type", "SEND_COIN");
                         body.put("from_wallet_address", walletAddress);
                         body.put("to_wallet_address", toQWAddress);
                         body.put("amount", value);
