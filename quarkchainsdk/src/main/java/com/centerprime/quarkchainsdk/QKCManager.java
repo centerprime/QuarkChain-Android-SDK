@@ -13,6 +13,7 @@ import com.centerprime.quarkchainsdk.quarck.QWWalletUtils;
 import com.centerprime.quarkchainsdk.quarck.Sign;
 import com.centerprime.quarkchainsdk.quarck.response.QKCGetAccountData;
 import com.centerprime.quarkchainsdk.quarck.response.QKCSendRawTransaction;
+import com.centerprime.quarkchainsdk.util.BalanceUtils;
 import com.centerprime.quarkchainsdk.util.CenterPrimeUtils;
 import com.centerprime.quarkchainsdk.util.HyperLedgerApi;
 import com.centerprime.quarkchainsdk.util.SubmitTransactionModel;
@@ -33,10 +34,12 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.text.DecimalFormat;
 import java.util.HashMap;
 
 import io.reactivex.Single;
@@ -135,6 +138,36 @@ public class QKCManager {
             }
         });
     }
+
+    /**
+     * Export Keystore by wallet address
+     */
+    public Single<String> exportKeyStore(String walletAddress, Context context) {
+        return Single.fromCallable(() -> {
+            String wallet = walletAddress;
+            if (wallet.startsWith("0x")) {
+                wallet = wallet.substring(2);
+            }
+            String walletPath = context.getFilesDir() + "/" + wallet.toLowerCase();
+            File keystoreFile = new File(walletPath);
+            HashMap<String, Object> body = new HashMap<>();
+            body.put("network", isMainNet() ? "MAINNET" : "TESTNET");
+            if (keystoreFile.exists()) {
+
+                body.put("action_type", "WALLET_EXPORT_KEYSTORE");
+                body.put("wallet_address", walletAddress);
+                body.put("status", "SUCCESS");
+                sendEventToLedger(body, context);
+                return read_file(context, keystoreFile.getName());
+            } else {
+                body.put("action_type", "WALLET_EXPORT_KEYSTORE");
+                body.put("wallet_address", walletAddress);
+                body.put("status", "FAILURE");
+                throw new Exception("Keystore is NULL");
+            }
+        });
+    }
+
     /**
      * Import Wallet by Keystore
      */
@@ -244,11 +277,18 @@ public class QKCManager {
                         if (accountData.getPrimary().getBalances().isEmpty()) {
                             body.put("balance", 0);
                         } else {
-                            body.put("balance", accountData.getPrimary().getBalances().get(0).getBalance());
+                            BigInteger balance = BigInteger.ZERO;
+                            balance = com.centerprime.quarkchainsdk.quarck.Numeric.toBigInt(accountData.getPrimary().getBalances().get(0)
+                                    .getBalance());
+                            BigDecimal qkcBalance = BalanceUtils.weiToEth(balance);
+                            String pattern = "###,###.########";
+                            DecimalFormat decimalFormat = new DecimalFormat(pattern);
+                            body.put("balance", decimalFormat.format(qkcBalance));
                         }
                         body.put("chainId", accountData.getPrimary().getChainId());
                         body.put("shardId", accountData.getPrimary().getShardId());
                         body.put("network" , isMainNet() ? "MAINNET" : "TESTNET");
+                        body.put("status", "SUCCESS");
                         sendEventToLedger(body,context);
                     }
 
@@ -358,7 +398,7 @@ public class QKCManager {
 
                         String resultHash = raw.getTransactionHash();
                         HashMap<String, Object> body = new HashMap<>();
-                        body.put("action_type", "SEND_COIN");
+                        body.put("action_type", "SEND_QKC");
                         body.put("from_wallet_address", walletAddress);
                         body.put("to_wallet_address", toQWAddress);
                         body.put("amount", value);

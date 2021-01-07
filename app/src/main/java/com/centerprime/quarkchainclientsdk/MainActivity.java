@@ -23,13 +23,13 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(wallet -> {
                     System.out.println(wallet);
                     String walletAddress = wallet.getAddress();
-                    walletAddress = "0x" + "13d123340fe2a947092be0d898287f9e81fd3e2b";
+                    walletAddress = "0x0dbd8d098548194cfbfcb7148a86624bee5ed700";
                     String qckWalletAddress = QKCManager.
                             getQCKAddress(walletAddress,this);
 
                     System.out.println(qckWalletAddress);
 
-                    String shard1 = QKCManager.getQCKAddressByChainIdAndShardId(qckWalletAddress,2,0,this);
+                    String shard1 = QKCManager.getQCKAddressByChainIdAndShardId(qckWalletAddress,0,0,this);
 
                     QKCManager.getQCKBalance(shard1, this)
                             .subscribeOn(Schedulers.io())
